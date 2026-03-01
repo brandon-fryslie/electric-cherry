@@ -1,0 +1,40 @@
+{
+  "name": "electric-cherry",
+  "version": "0.1.0",
+  "description": "Electron debugging MCP server for renderer (CDP) and main process (V8 Inspector)",
+  "type": "module",
+  "bin": {
+    "electric-cherry": "./build/src/index.js"
+  },
+  "main": "./build/src/index.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "start": "npm run build && node build/src/index.js",
+    "test": "npm run build && node --test build/tests/*.test.js",
+    "test:watch": "node --test --watch build/tests/*.test.js",
+    "clean": "rm -rf build"
+  },
+  "keywords": [
+    "mcp",
+    "electron",
+    "chrome-devtools-protocol",
+    "v8-inspector",
+    "debugger",
+    "puppeteer",
+    "model-context-protocol"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.25.2",
+    "puppeteer": "^24.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.9.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

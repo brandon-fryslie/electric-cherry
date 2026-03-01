@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "electric-cherry": {
+      "command": "node",
+      "args": ["/Users/bmf/code/electric-cherry/build/src/index.js"]
+    }
+  }
+}

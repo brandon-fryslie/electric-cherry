@@ -1,0 +1,6 @@
+[submodule "repos/chrome-devtools-mcp"]
+	path = repos/chrome-devtools-mcp
+	url = https://github.com/ChromeDevTools/chrome-devtools-mcp
+[submodule "repos/mcp-js"]
+	path = repos/mcp-js
+	url = https://github.com/r33drichards/mcp-js

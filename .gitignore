@@ -1,0 +1,10 @@
+node_modules/
+build/
+*.log
+.DS_Store
+*.tsbuildinfo
+.env
+.beads/
+.idea/
+.ignored/
+repos/
