@@ -21,7 +21,7 @@ function getPage(connectionId?: string) {
   if (!connection) {
     const id = connectionId || 'active';
     throw new Error(
-      `No Chrome connection '${id}' found. Use chrome_connect() or chrome_launch() first.`
+      `No Chrome connection '${id}' found. Use chrome(action="connect", ...) or chrome(action="launch", ...) first.`
     );
   }
   return connection.page;
@@ -379,7 +379,7 @@ export async function getConsoleLogs(args: {
     if (!connection) {
       const id = args.connection_id || 'active';
       throw new Error(
-        `No Chrome connection '${id}' found. Use chrome_connect() or chrome_launch() first.`
+        `No Chrome connection '${id}' found. Use chrome(action="connect", ...) or chrome(action="launch", ...) first.`
       );
     }
 
