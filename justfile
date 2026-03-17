@@ -18,7 +18,6 @@ test:
 # Install as a Claude Code MCP server into a project directory
 install-claude dir:
     cd {{dir}} && claude mcp add --scope project electric-cherry -- node {{entry}}
-    cd {{dir}} && claude mcp add --scope project proxyman -- /Applications/Proxyman.app/Contents/MacOS/mcp-server
 
 # Uninstall from a project directory
 uninstall-claude dir:

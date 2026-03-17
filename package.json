@@ -24,8 +24,16 @@
     "puppeteer",
     "model-context-protocol"
   ],
-  "author": "",
+  "author": "brandon-fryslie",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/brandon-fryslie/electric-cherry.git"
+  },
+  "homepage": "https://github.com/brandon-fryslie/electric-cherry#readme",
+  "bugs": {
+    "url": "https://github.com/brandon-fryslie/electric-cherry/issues"
+  },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.27.1",
     "puppeteer": "^24.37.5"
