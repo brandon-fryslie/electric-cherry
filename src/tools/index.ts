@@ -59,3 +59,6 @@ export {
   getNetworkRequests,
   clearNetworkRequests,
 } from './network.js';
+
+// Help
+export { help } from './help.js';

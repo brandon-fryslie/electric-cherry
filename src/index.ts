@@ -53,6 +53,8 @@ import {
   enableNetwork,
   getNetworkRequests,
   clearNetworkRequests,
+  // Help
+  help,
 } from './tools/index.js';
 
 const server = new Server(
@@ -477,6 +479,13 @@ const tools: Tool[] = [
     },
   },
 
+  // === Help ===
+  {
+    name: 'help',
+    description: 'Show install instructions for Electric Cherry across different tools.',
+    inputSchema: { type: 'object', properties: {} },
+  },
+
   // === Tool Management ===
   {
     name: 'hide_tools',
@@ -583,6 +592,10 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         return await evaluate(args as Parameters<typeof evaluate>[0]);
       case 'pause_on_exceptions':
         return await pauseOnExceptions(args as Parameters<typeof pauseOnExceptions>[0]);
+
+      // Help
+      case 'help':
+        return help();
 
       // Tool management
       case 'hide_tools':
