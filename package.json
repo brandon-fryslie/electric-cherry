@@ -4,16 +4,22 @@
   "description": "Electron debugging MCP server for renderer (CDP) and main process (V8 Inspector)",
   "type": "module",
   "bin": {
-    "electric-cherry": "./build/src/index.js"
+    "electric-cherry": "build/src/index.js"
   },
   "main": "./build/src/index.js",
+  "files": [
+    "build/src",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
     "start": "npm run build && node build/src/index.js",
     "test": "npm run build && node --test build/tests/*.test.js",
     "test:watch": "node --test --watch build/tests/*.test.js",
-    "clean": "rm -rf build"
+    "clean": "rm -rf build",
+    "prepublishOnly": "npm run build && npm test"
   },
   "keywords": [
     "mcp",
