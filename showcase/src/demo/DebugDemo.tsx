@@ -5,8 +5,8 @@ import { ChatPanel } from './ChatPanel.tsx';
 import { ToolsPalette } from './ToolsPalette.tsx';
 import { ApplicationPane } from './ApplicationPane.tsx';
 import { Callouts } from './Callouts.tsx';
-import { DataflowLayer } from './DataflowLayer.tsx';
 import { StatusLine } from './StatusLine.tsx';
+import { SystemMap } from './SystemMap.tsx';
 import { ToolInspector } from './ToolInspector.tsx';
 import { WireLog } from './WireLog.tsx';
 import './DebugDemo.css';
@@ -35,6 +35,8 @@ export function DebugDemo() {
         onReset={() => actions.loadScenario(state.scenarioIdx)}
       />
 
+      <SystemMap flashes={state.flashes} onFlashComplete={actions.removeFlash} />
+
       <div className="ec-stage" ref={stageRef}>
         <ChatPanel
           bubbles={state.bubbles}
@@ -50,11 +52,6 @@ export function DebugDemo() {
         />
         <ApplicationPane renderer={state.rendererState} main={state.mainState} />
         <Callouts callouts={state.callouts} stageRef={stageRef} />
-        <DataflowLayer
-          stageRef={stageRef}
-          packets={state.flowPackets}
-          onPacketComplete={actions.removeFlowPacket}
-        />
         <ToolInspector tool={state.selectedTool} onClose={actions.closeInspector} />
       </div>
 

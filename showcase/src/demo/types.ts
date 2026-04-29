@@ -81,20 +81,25 @@ export interface CalloutInstance {
 // the live MCP server can never drift.
 export type { ToolDetails } from './data/tool-details.ts';
 
-/** A single dataflow particle, alive while it animates between two anchor
- *  selectors inside the demo stage. The orchestrator appends one when an
- *  MCP request leaves the agent, when cherry forwards to the app on a
- *  wire (CDP or V8), when the app responds, and when cherry returns the
- *  result to the agent — visualizing the routing electric-cherry does. */
-export interface FlowPacket {
+/** Identifier for a connection in the system map (top-of-stage topology
+ *  diagram). The map exposes the routing structure of electric-cherry —
+ *  one MCP surface in, two protocol surfaces out — and each branch
+ *  flashes independently when traffic crosses it. */
+export type ConnectionId = 'agent-cherry' | 'cherry-cdp' | 'cherry-v8';
+
+/** A single traffic flash on one of the topology connections. The
+ *  permanent arrow stays grey; while a flash is alive, an overlay path
+ *  pulses the protocol's color via a CSS keyframe, then auto-removes
+ *  when the animation completes (~700ms). Multiple overlapping flashes
+ *  on the same connection layer naturally — the arrow reads as
+ *  "sustained traffic." */
+export interface ConnectionFlash {
   id: number;
-  /** Color/semantics: 'mcp' = agent ↔ cherry hop, 'cdp' = renderer wire,
-   *  'v8' = main-process wire. */
+  connection: ConnectionId;
+  /** Color the flash uses: 'mcp' for agent ↔ cherry MCP request/response,
+   *  'cdp' for renderer-side protocol traffic, 'v8' for main-process
+   *  protocol traffic. */
   protocol: 'mcp' | 'cdp' | 'v8';
-  /** CSS selector (relative to stage) for the source anchor. */
-  sourceSelector: string;
-  /** CSS selector (relative to stage) for the target anchor. */
-  targetSelector: string;
 }
 
 export type ConsoleLineKind = 'log' | 'error' | 'meta' | 'eval';

@@ -5,7 +5,8 @@ import type {
   AppEffect,
   Bubble,
   CalloutInstance,
-  FlowPacket,
+  ConnectionFlash,
+  ConnectionId,
   MainState,
   RendererState,
   Scenario,
@@ -40,7 +41,7 @@ interface State {
   bubbles: Bubble[];
   wireRows: WireRow[];
   callouts: CalloutInstance[];
-  flowPackets: FlowPacket[];
+  flashes: ConnectionFlash[];
   highlightedTool: string | null;
   selectedTool: ToolDetails | null;
   status: string;
@@ -69,8 +70,8 @@ type Action =
   | { type: 'clear-wire' }
   | { type: 'add-callout'; callout: Omit<CalloutInstance, 'id'> }
   | { type: 'remove-callout'; id: number }
-  | { type: 'add-flow-packet'; packet: Omit<FlowPacket, 'id'> }
-  | { type: 'remove-flow-packet'; id: number }
+  | { type: 'add-flash'; flash: Omit<ConnectionFlash, 'id'> }
+  | { type: 'remove-flash'; id: number }
   | { type: 'select-tool'; tool: ToolDetails | null }
   | { type: 'highlight-tool'; tool: string | null }
   | { type: 'apply-effect'; effect: AppEffect }
@@ -111,7 +112,7 @@ function makeInitialState(scenarioIdx: number): State {
     bubbles: [],
     wireRows: [],
     callouts: [],
-    flowPackets: [],
+    flashes: [],
     highlightedTool: null,
     selectedTool: null,
     status: 'Press play to watch the user prompt the agent, or type your own request.',
@@ -190,18 +191,18 @@ function reducer(state: State, action: Action): State {
         ...state,
         callouts: state.callouts.filter((c) => c.id !== action.id),
       };
-    case 'add-flow-packet': {
+    case 'add-flash': {
       const id = state.nextId;
       return {
         ...state,
-        flowPackets: [...state.flowPackets, { id, ...action.packet }],
+        flashes: [...state.flashes, { id, ...action.flash }],
         nextId: id + 1,
       };
     }
-    case 'remove-flow-packet':
+    case 'remove-flash':
       return {
         ...state,
-        flowPackets: state.flowPackets.filter((p) => p.id !== action.id),
+        flashes: state.flashes.filter((f) => f.id !== action.id),
       };
     case 'select-tool':
       return { ...state, selectedTool: action.tool };
@@ -387,25 +388,12 @@ export function usePlayer() {
     return id;
   }
 
-  // [LAW:dataflow-not-control-flow] One emit shape for any hop — the actor
-  // selectors and protocol come from the call site; the layer is hop-agnostic.
-  function emitFlow(
-    protocol: FlowPacket['protocol'],
-    sourceSelector: string,
-    targetSelector: string,
-  ) {
-    dispatch({
-      type: 'add-flow-packet',
-      packet: { protocol, sourceSelector, targetSelector },
-    });
+  // [LAW:dataflow-not-control-flow] One emit shape — the call site picks
+  // a connection and a protocol; the layer renders the flash. The layer
+  // owns the topology; the orchestrator owns the timing.
+  function emitFlash(connection: ConnectionId, protocol: ConnectionFlash['protocol']) {
+    dispatch({ type: 'add-flash', flash: { connection, protocol } });
   }
-
-  // Actor selectors used by the dataflow layer to anchor hop endpoints.
-  const ACTORS = {
-    agent: '.ec-agent',
-    cherry: '.ec-cherry',
-    app: '.ec-application',
-  } as const;
 
 
   // ---- the play loop -------------------------------------------------------
@@ -441,8 +429,8 @@ export function usePlayer() {
 
     pushToolCallBubble(step.tool, step.args);
     dispatch({ type: 'highlight-tool', tool: step.tool });
-    // Hop 1: agent → cherry (the MCP request leaving the agent).
-    emitFlow('mcp', ACTORS.agent, ACTORS.cherry);
+    // Hop 1: agent → cherry (MCP request leaving the agent).
+    emitFlash('agent-cherry', 'mcp');
     const protoNote =
       step.cdp.length && step.v8.length ? 'CDP + V8 Inspector'
       : step.cdp.length ? 'CDP'
@@ -452,24 +440,26 @@ export function usePlayer() {
     await delay(t(TIMINGS.toolHighlightHold), token);
 
     for (const msg of step.cdp) {
-      // Hop 2/3: cherry ↔ application over the renderer wire.
-      emitFlow('cdp', ACTORS.cherry, ACTORS.app);
+      // Each wire round-trip flashes the cherry → renderer arrow on the
+      // CDP branch. Overlapping flashes layer so the arrow reads as
+      // "sustained traffic" while messages are in flight.
+      emitFlash('cherry-cdp', 'cdp');
       dispatch({ type: 'add-wire', row: { direction: 'out', protocol: 'cdp', label: msg.method, payload: msg.params } });
       await delay(t(TIMINGS.perWireOut), token);
-      emitFlow('cdp', ACTORS.app, ACTORS.cherry);
+      emitFlash('cherry-cdp', 'cdp');
       dispatch({ type: 'add-wire', row: { direction: 'in', protocol: 'cdp', label: `${msg.method} (response)`, payload: { ok: true } } });
       await delay(t(TIMINGS.perWireIn), token);
     }
     for (const msg of step.v8) {
-      emitFlow('v8', ACTORS.cherry, ACTORS.app);
+      emitFlash('cherry-v8', 'v8');
       dispatch({ type: 'add-wire', row: { direction: 'out', protocol: 'v8', label: msg.method, payload: msg.params } });
       await delay(t(TIMINGS.perWireOut), token);
-      emitFlow('v8', ACTORS.app, ACTORS.cherry);
+      emitFlash('cherry-v8', 'v8');
       dispatch({ type: 'add-wire', row: { direction: 'in', protocol: 'v8', label: `${msg.method} (response)`, payload: { ok: true } } });
       await delay(t(TIMINGS.perWireIn), token);
     }
-    // Hop 4: cherry → agent (the MCP response returning the tool result).
-    emitFlow('mcp', ACTORS.cherry, ACTORS.agent);
+    // Hop 4: cherry → agent (MCP response returning the tool result).
+    emitFlash('agent-cherry', 'mcp');
     await delay(t(TIMINGS.postWireHold), token);
 
     if (step.appEffect) {
@@ -604,8 +594,8 @@ export function usePlayer() {
     dispatch({ type: 'select-tool', tool: null });
   }, []);
 
-  const removeFlowPacket = useCallback((id: number) => {
-    dispatch({ type: 'remove-flow-packet', id });
+  const removeFlash = useCallback((id: number) => {
+    dispatch({ type: 'remove-flash', id });
   }, []);
 
   const submitFromTextarea = useCallback(() => {
@@ -646,7 +636,7 @@ export function usePlayer() {
       submitFromTextarea,
       selectTool,
       closeInspector,
-      removeFlowPacket,
+      removeFlash,
     },
     scenarios: SCENARIOS,
     stepCount: SCENARIOS[state.scenarioIdx].steps.length,
