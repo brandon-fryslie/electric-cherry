@@ -2,9 +2,10 @@ import { TOOL_PALETTE, GROUP_LABEL, GROUP_ORDER, GROUP_PROTOCOL } from './data/t
 
 interface ToolsPaletteProps {
   highlighted: string | null;
+  onToolClick: (toolName: string) => void;
 }
 
-export function ToolsPalette({ highlighted }: ToolsPaletteProps) {
+export function ToolsPalette({ highlighted, onToolClick }: ToolsPaletteProps) {
   // Bucket tools by group, preserving palette order within each group.
   const grouped: Record<string, ReadonlyArray<{ name: string }>> = {};
   for (const t of TOOL_PALETTE) {
@@ -26,16 +27,22 @@ export function ToolsPalette({ highlighted }: ToolsPaletteProps) {
             <div className="ec-tg-label">{GROUP_LABEL[g]}</div>
             <div className="ec-tg-tools">
               {(grouped[g] ?? []).map((t) => (
-                <span
+                <button
+                  type="button"
                   key={t.name}
                   className={[
                     'ec-tool',
                     highlighted === t.name ? 'ec-tool-active' : '',
                   ].filter(Boolean).join(' ')}
                   data-protocol={GROUP_PROTOCOL[g]}
+                  data-tool={t.name}
+                  onClick={() => onToolClick(t.name)}
+                  title={`Invoke ${t.name} — routes to ${
+                    GROUP_PROTOCOL[g] === 'v8' ? 'V8 Inspector' : 'CDP'
+                  }`}
                 >
                   {t.name}
-                </span>
+                </button>
               ))}
             </div>
           </div>

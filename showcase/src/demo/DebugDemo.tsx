@@ -5,6 +5,7 @@ import { ChatPanel } from './ChatPanel.tsx';
 import { ToolsPalette } from './ToolsPalette.tsx';
 import { ApplicationPane } from './ApplicationPane.tsx';
 import { Callouts } from './Callouts.tsx';
+import { DataflowLayer } from './DataflowLayer.tsx';
 import { StatusLine } from './StatusLine.tsx';
 import { WireLog } from './WireLog.tsx';
 import './DebugDemo.css';
@@ -42,9 +43,17 @@ export function DebugDemo() {
           onTextareaChange={actions.setTextareaValue}
           onSubmit={actions.submitFromTextarea}
         />
-        <ToolsPalette highlighted={state.highlightedTool} />
+        <ToolsPalette
+          highlighted={state.highlightedTool}
+          onToolClick={actions.triggerToolClick}
+        />
         <ApplicationPane renderer={state.rendererState} main={state.mainState} />
         <Callouts callouts={state.callouts} stageRef={stageRef} />
+        <DataflowLayer
+          stageRef={stageRef}
+          packets={state.flowPackets}
+          onPacketComplete={actions.removeFlowPacket}
+        />
       </div>
 
       <StatusLine text={state.status} />
