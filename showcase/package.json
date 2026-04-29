@@ -1,0 +1,25 @@
+{
+  "name": "electric-cherry-showcase",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "gsap": "^3.12.5",
+    "lenis": "^1.1.20",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "showcase-kit": "github:brandon-fryslie/gh-pages-showcase#master"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.3",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.10"
+  }
+}

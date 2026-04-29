@@ -1,0 +1,41 @@
+/* Page-level chrome that lives outside showcase-kit components. */
+*, *::before, *::after { box-sizing: border-box; }
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--sk-bg);
+  color: var(--sk-fg);
+  font-family: var(--sk-ff-sans);
+}
+body { min-height: 100vh; }
+
+.ec-quickstart {
+  background: var(--sk-bg);
+  color: var(--sk-fg);
+  padding: var(--sk-sp-7) var(--sk-sp-5);
+}
+.ec-quickstart-inner {
+  max-width: 900px;
+  margin: 0 auto;
+}
+.ec-quickstart h2 {
+  margin: 0 0 var(--sk-sp-4);
+  font-size: var(--sk-fs-h1);
+  letter-spacing: -0.01em;
+  color: var(--sk-fg-strong);
+}
+.ec-quickstart p {
+  margin: 0 0 var(--sk-sp-5);
+  font-size: var(--sk-fs-tagline);
+  line-height: 1.6;
+  color: var(--sk-fg);
+  max-width: 70ch;
+}
+.ec-quickstart code {
+  font-family: var(--sk-ff-mono);
+  background: var(--sk-bg-elev-2);
+  border: 1px solid var(--sk-border);
+  border-radius: var(--sk-radius-sm);
+  padding: 1px 4px;
+  font-size: 0.9em;
+}

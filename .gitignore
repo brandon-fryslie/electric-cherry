@@ -1,5 +1,6 @@
 node_modules/
 build/
+showcase/dist/
 *.log
 .DS_Store
 *.tsbuildinfo

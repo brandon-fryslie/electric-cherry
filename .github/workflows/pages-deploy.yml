@@ -1,0 +1,67 @@
+name: Deploy showcase
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'showcase/**'
+      - '.github/workflows/pages-deploy.yml'
+  pull_request:
+    paths:
+      - 'showcase/**'
+      - '.github/workflows/pages-deploy.yml'
+  workflow_dispatch:
+
+# Multiplexer expects to be the sole writer of the deploy branch during a run.
+concurrency:
+  group: pages-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # multiplexer reads commit metadata for the manifest
+
+      # Compute a stable per-deploy slot name. PRs get pr-N, tags get the tag,
+      # everything else gets a "release-counter + short-SHA" identifier.
+      - name: Compute version slot
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            slot="pr-${{ github.event.pull_request.number }}"
+          elif [ "${{ github.ref_type }}" = "tag" ]; then
+            slot="${{ github.ref_name }}"
+          else
+            count=$(git rev-list --count HEAD)
+            short=$(git rev-parse --short HEAD)
+            slot="r${count}-${short}"
+          fi
+          echo "slot=${slot}" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: showcase/package-lock.json
+
+      - name: Install dependencies
+        working-directory: showcase
+        run: npm ci
+
+      - name: Build with explicit base URL
+        working-directory: showcase
+        env:
+          VITE_BASE: /${{ github.event.repository.name }}/${{ steps.version.outputs.slot }}/
+        run: npm run build
+
+      - uses: brandon-fryslie/gh-pages-multiplexer@v1
+        with:
+          source-dir: showcase/dist
+          version: ${{ steps.version.outputs.slot }}
+          base-path-mode: none
