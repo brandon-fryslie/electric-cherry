@@ -5,6 +5,7 @@ import type {
   AppEffect,
   Bubble,
   CalloutInstance,
+  FlowPacket,
   MainState,
   RendererState,
   Scenario,
@@ -39,6 +40,7 @@ interface State {
   bubbles: Bubble[];
   wireRows: WireRow[];
   callouts: CalloutInstance[];
+  flowPackets: FlowPacket[];
   highlightedTool: string | null;
   selectedTool: ToolDetails | null;
   status: string;
@@ -67,6 +69,8 @@ type Action =
   | { type: 'clear-wire' }
   | { type: 'add-callout'; callout: Omit<CalloutInstance, 'id'> }
   | { type: 'remove-callout'; id: number }
+  | { type: 'add-flow-packet'; packet: Omit<FlowPacket, 'id'> }
+  | { type: 'remove-flow-packet'; id: number }
   | { type: 'select-tool'; tool: ToolDetails | null }
   | { type: 'highlight-tool'; tool: string | null }
   | { type: 'apply-effect'; effect: AppEffect }
@@ -107,6 +111,7 @@ function makeInitialState(scenarioIdx: number): State {
     bubbles: [],
     wireRows: [],
     callouts: [],
+    flowPackets: [],
     highlightedTool: null,
     selectedTool: null,
     status: 'Press play to watch the user prompt the agent, or type your own request.',
@@ -184,6 +189,19 @@ function reducer(state: State, action: Action): State {
       return {
         ...state,
         callouts: state.callouts.filter((c) => c.id !== action.id),
+      };
+    case 'add-flow-packet': {
+      const id = state.nextId;
+      return {
+        ...state,
+        flowPackets: [...state.flowPackets, { id, ...action.packet }],
+        nextId: id + 1,
+      };
+    }
+    case 'remove-flow-packet':
+      return {
+        ...state,
+        flowPackets: state.flowPackets.filter((p) => p.id !== action.id),
       };
     case 'select-tool':
       return { ...state, selectedTool: action.tool };
@@ -369,6 +387,26 @@ export function usePlayer() {
     return id;
   }
 
+  // [LAW:dataflow-not-control-flow] One emit shape for any hop — the actor
+  // selectors and protocol come from the call site; the layer is hop-agnostic.
+  function emitFlow(
+    protocol: FlowPacket['protocol'],
+    sourceSelector: string,
+    targetSelector: string,
+  ) {
+    dispatch({
+      type: 'add-flow-packet',
+      packet: { protocol, sourceSelector, targetSelector },
+    });
+  }
+
+  // Actor selectors used by the dataflow layer to anchor hop endpoints.
+  const ACTORS = {
+    agent: '.ec-agent',
+    cherry: '.ec-cherry',
+    app: '.ec-application',
+  } as const;
+
 
   // ---- the play loop -------------------------------------------------------
   async function playIntro(scenario: Scenario, token: AbortToken) {
@@ -403,6 +441,8 @@ export function usePlayer() {
 
     pushToolCallBubble(step.tool, step.args);
     dispatch({ type: 'highlight-tool', tool: step.tool });
+    // Hop 1: agent → cherry (the MCP request leaving the agent).
+    emitFlow('mcp', ACTORS.agent, ACTORS.cherry);
     const protoNote =
       step.cdp.length && step.v8.length ? 'CDP + V8 Inspector'
       : step.cdp.length ? 'CDP'
@@ -412,17 +452,24 @@ export function usePlayer() {
     await delay(t(TIMINGS.toolHighlightHold), token);
 
     for (const msg of step.cdp) {
+      // Hop 2/3: cherry ↔ application over the renderer wire.
+      emitFlow('cdp', ACTORS.cherry, ACTORS.app);
       dispatch({ type: 'add-wire', row: { direction: 'out', protocol: 'cdp', label: msg.method, payload: msg.params } });
       await delay(t(TIMINGS.perWireOut), token);
+      emitFlow('cdp', ACTORS.app, ACTORS.cherry);
       dispatch({ type: 'add-wire', row: { direction: 'in', protocol: 'cdp', label: `${msg.method} (response)`, payload: { ok: true } } });
       await delay(t(TIMINGS.perWireIn), token);
     }
     for (const msg of step.v8) {
+      emitFlow('v8', ACTORS.cherry, ACTORS.app);
       dispatch({ type: 'add-wire', row: { direction: 'out', protocol: 'v8', label: msg.method, payload: msg.params } });
       await delay(t(TIMINGS.perWireOut), token);
+      emitFlow('v8', ACTORS.app, ACTORS.cherry);
       dispatch({ type: 'add-wire', row: { direction: 'in', protocol: 'v8', label: `${msg.method} (response)`, payload: { ok: true } } });
       await delay(t(TIMINGS.perWireIn), token);
     }
+    // Hop 4: cherry → agent (the MCP response returning the tool result).
+    emitFlow('mcp', ACTORS.cherry, ACTORS.agent);
     await delay(t(TIMINGS.postWireHold), token);
 
     if (step.appEffect) {
@@ -557,6 +604,10 @@ export function usePlayer() {
     dispatch({ type: 'select-tool', tool: null });
   }, []);
 
+  const removeFlowPacket = useCallback((id: number) => {
+    dispatch({ type: 'remove-flow-packet', id });
+  }, []);
+
   const submitFromTextarea = useCallback(() => {
     const text = stateRef.current.textareaValue.trim();
     if (!text) return;
@@ -595,6 +646,7 @@ export function usePlayer() {
       submitFromTextarea,
       selectTool,
       closeInspector,
+      removeFlowPacket,
     },
     scenarios: SCENARIOS,
     stepCount: SCENARIOS[state.scenarioIdx].steps.length,

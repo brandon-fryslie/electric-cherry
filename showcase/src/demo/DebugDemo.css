@@ -285,6 +285,21 @@
   z-index: 1;
 }
 
+/* ---- dataflow overlay --------------------------------------------------- */
+/* Sits on top of the stage but never intercepts pointer events — chips and
+   panes underneath stay fully interactive. Lower z-index than the inspector
+   modal so opening the inspector hides the in-flight particles. */
+.ec-dataflow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 5;
+  overflow: visible;
+}
+.ec-flow-packet circle {
+  filter: drop-shadow(0 0 8px currentColor);
+}
+
 /* ---- tool inspector modal ----------------------------------------------- */
 .ec-inspector-backdrop {
   position: absolute;

@@ -81,6 +81,22 @@ export interface CalloutInstance {
 // the live MCP server can never drift.
 export type { ToolDetails } from './data/tool-details.ts';
 
+/** A single dataflow particle, alive while it animates between two anchor
+ *  selectors inside the demo stage. The orchestrator appends one when an
+ *  MCP request leaves the agent, when cherry forwards to the app on a
+ *  wire (CDP or V8), when the app responds, and when cherry returns the
+ *  result to the agent — visualizing the routing electric-cherry does. */
+export interface FlowPacket {
+  id: number;
+  /** Color/semantics: 'mcp' = agent ↔ cherry hop, 'cdp' = renderer wire,
+   *  'v8' = main-process wire. */
+  protocol: 'mcp' | 'cdp' | 'v8';
+  /** CSS selector (relative to stage) for the source anchor. */
+  sourceSelector: string;
+  /** CSS selector (relative to stage) for the target anchor. */
+  targetSelector: string;
+}
+
 export type ConsoleLineKind = 'log' | 'error' | 'meta' | 'eval';
 
 export interface RendererConsoleLine {
