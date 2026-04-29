@@ -2,6 +2,98 @@
   "schema": 2,
   "versions": [
     {
+      "version": "r12-736ab36",
+      "ref": "refs/heads/master",
+      "sha": "736ab363502325dd3b5199dbeaf090613e291ba5",
+      "timestamp": "2026-04-29T08:28:46.769Z",
+      "commits": [
+        {
+          "sha": "736ab363502325dd3b5199dbeaf090613e291ba5",
+          "author_name": "Brandon Fryslie",
+          "author_email": "530235+brandon-fryslie@users.noreply.github.com",
+          "timestamp": "2026-04-29T02:28:16-06:00",
+          "message": "Bump showcase-kit: symmetric zoom on ScrollPin\n\nThe lock-in now zooms out as you scroll past the pin instead of\nsnapping back to the windowed card. Pin entry and pin exit are\nmirror images.\n\nGenerated with [Claude Code](https://claude.ai/code)\nvia [Happy](https://happy.engineering)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nCo-Authored-By: Happy <yesreply@happy.engineering>\n"
+        },
+        {
+          "sha": "6437b0419b65a36579724f4d205552fa66ddd39d",
+          "author_name": "Brandon Fryslie",
+          "author_email": "530235+brandon-fryslie@users.noreply.github.com",
+          "timestamp": "2026-04-29T02:23:37-06:00",
+          "message": "Bump showcase-kit: column alignment + scrub jank fix\n\nPicks up:\n- Card aligns with header/footer text column (1052px inner)\n- ScrollTrigger scrub set to 1:1 so Lenis is the only smoothing layer\n\nGenerated with [Claude Code](https://claude.ai/code)\nvia [Happy](https://happy.engineering)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nCo-Authored-By: Happy <yesreply@happy.engineering>\n"
+        },
+        {
+          "sha": "21afab86ae189daa5c8164fb16a0f603a4b15e7a",
+          "author_name": "Brandon Fryslie",
+          "author_email": "530235+brandon-fryslie@users.noreply.github.com",
+          "timestamp": "2026-04-29T01:55:04-06:00",
+          "message": "Bump showcase-kit: ScrollPin maxWidth column\n\nPicks up the unzoomed-card column constraint so the demo panel sits in\nthe same ~1100px column as the header and footer, then expands to full\nbleed on lock-in.\n\nGenerated with [Claude Code](https://claude.ai/code)\nvia [Happy](https://happy.engineering)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nCo-Authored-By: Happy <yesreply@happy.engineering>\n"
+        },
+        {
+          "sha": "e859906f5bf52500d07d66c04bb87238051026fd",
+          "author_name": "Brandon Fryslie",
+          "author_email": "530235+brandon-fryslie@users.noreply.github.com",
+          "timestamp": "2026-04-29T01:27:43-06:00",
+          "message": "Bump showcase-kit to pick up scrollbar-hide fix\n\nScrollPin now hides the native scrollbar while Lenis is active so the\nlock-in illusion isn't broken by a visible scrollbar.\n\nGenerated with [Claude Code](https://claude.ai/code)\nvia [Happy](https://happy.engineering)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nCo-Authored-By: Happy <yesreply@happy.engineering>\n"
+        },
+        {
+          "sha": "ddac5e166fa5b2a65f5cd26c24b3a6c512b48883",
+          "author_name": "Brandon Fryslie",
+          "author_email": "530235+brandon-fryslie@users.noreply.github.com",
+          "timestamp": "2026-04-29T00:44:45-06:00",
+          "message": "Add showcase/ Vite app + GitHub Pages deploy workflow\n\nThe previous gh-pages branch was experimentally hosting both Vite source\nand the multiplexer's deploy outputs on the same branch — wrong shape.\nSource belongs on master alongside the lib it documents, and the\nmultiplexer publishes built artifacts to gh-pages.\n\n- showcase/ — Vite + React app consuming showcase-kit's components.\n  Page is composed (not templated) from <Header>, <ScrollPin>,\n  <CodeBlock>, <MetadataFooter>. The debugging demo is a full React\n  port of the previous vanilla orchestrator (useReducer + cancellable\n  async play loop, scenarios as typed data).\n- .github/workflows/pages-deploy.yml — adapted from the shader-playground\n  pattern: trigger on master push + PRs, compute a slot name\n  (r<count>-<sha> for master, pr-N for PRs, tag name for tags), build\n  Vite with VITE_BASE pointing at /electric-cherry/<slot>/, hand the\n  built dist to brandon-fryslie/gh-pages-multiplexer@v1 with\n  base-path-mode: none (Vite already produced the right base).\n\nGenerated with [Claude Code](https://claude.ai/code)\nvia [Happy](https://happy.engineering)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nCo-Authored-By: Happy <yesreply@happy.engineering>\n"
+        },
+        {
+          "sha": "9841d941c2d3ca64cd4db6ba87aa16210ac45fbb",
+          "author_name": "Brandon Fryslie",
+          "author_email": "530235+brandon-fryslie@users.noreply.github.com",
+          "timestamp": "2026-03-28T11:48:06-06:00",
+          "message": "chore: bump version to 0.1.1\n"
+        },
+        {
+          "sha": "517fab54ed42ae428f3279b193e07129bcf6f6d7",
+          "author_name": "Brandon Fryslie",
+          "author_email": "530235+brandon-fryslie@users.noreply.github.com",
+          "timestamp": "2026-03-28T04:12:45-06:00",
+          "message": "feat: add help tool with install instructions\n"
+        },
+        {
+          "sha": "3ee6da1cd80eebc3fe4ed4592bef436b2bc435c1",
+          "author_name": "Brandon Fryslie",
+          "author_email": "530235+brandon-fryslie@users.noreply.github.com",
+          "timestamp": "2026-03-28T02:44:44-06:00",
+          "message": "chore: configure package for npm publishing\n\nAdd files whitelist, prepublishOnly script, and ignore .npmrc\n"
+        },
+        {
+          "sha": "a1e787f1fc010812c59481d13cf515f855cf5be8",
+          "author_name": "Brandon Fryslie",
+          "author_email": "530235+brandon-fryslie@users.noreply.github.com",
+          "timestamp": "2026-03-16T23:48:27-06:00",
+          "message": "chore: prepare for public release\n\n- Add MIT LICENSE file and package.json metadata (author, repository, homepage, bugs)\n- Remove internal reference material (references/, query-bundle.js, AGENTS.md)\n- Move reverse-engineer-electron skill and docs to separate repo\n- Remove Proxyman from justfile install-claude recipe\n"
+        },
+        {
+          "sha": "c2f979d0407dd23151bb92689cfa3c94ceecb07a",
+          "author_name": "Brandon Fryslie",
+          "author_email": "530235+brandon-fryslie@users.noreply.github.com",
+          "timestamp": "2026-03-01T17:21:26-07:00",
+          "message": "chore: use relative mcp entry path\n"
+        },
+        {
+          "sha": "096fcd6ce65183d47b82435c14e890ede926f93b",
+          "author_name": "Brandon Fryslie",
+          "author_email": "530235+brandon-fryslie@users.noreply.github.com",
+          "timestamp": "2026-03-01T17:16:02-07:00",
+          "message": "chore: flatten repo layout and finalize release prep\n"
+        },
+        {
+          "sha": "71c1584c96220b5825e237e10f71bb9a9a63d7d9",
+          "author_name": "Brandon Fryslie",
+          "author_email": "530235+brandon-fryslie@users.noreply.github.com",
+          "timestamp": "2026-03-01T15:39:11-07:00",
+          "message": "Initial\n"
+        }
+      ]
+    },
+    {
       "version": "r11-6437b04",
       "ref": "refs/heads/master",
       "sha": "6437b0419b65a36579724f4d205552fa66ddd39d",
