@@ -1,47 +1,80 @@
-export const TOOL_PALETTE = [
-  { name: 'electron_setup',      group: 'electron' },
-  { name: 'electron_connect',    group: 'electron' },
-  { name: 'chrome',              group: 'connect' },
-  { name: 'target',              group: 'connect' },
-  { name: 'query_elements',      group: 'dom' },
-  { name: 'click_element',       group: 'dom' },
-  { name: 'fill_element',        group: 'dom' },
-  { name: 'navigate',            group: 'dom' },
-  { name: 'get_console_logs',    group: 'dom' },
-  { name: 'take_screenshot',     group: 'renderer' },
-  { name: 'renderer_evaluate',   group: 'renderer' },
-  { name: 'enable_debug_tools',  group: 'debugger' },
-  { name: 'breakpoint',          group: 'debugger' },
-  { name: 'step',                group: 'debugger' },
-  { name: 'execution',           group: 'debugger' },
-  { name: 'call_stack',          group: 'debugger' },
-  { name: 'evaluate',            group: 'debugger' },
-  { name: 'pause_on_exceptions', group: 'debugger' },
-  { name: 'enable_network',      group: 'network' },
-  { name: 'get_network_requests',group: 'network' },
-  { name: 'v8_connect',          group: 'v8' },
-  { name: 'v8_evaluate',         group: 'v8' },
-  { name: 'v8_disconnect',       group: 'v8' },
-] as const;
+// [LAW:one-source-of-truth] All tool data derives from the canonical
+// catalog the MCP server registers. The showcase only adds three pieces of
+// presentation metadata: the human-readable label per category, the
+// protocol that category routes to, and the display order. Adding a new
+// tool to the catalog with an existing category makes it appear here
+// automatically; adding a new category requires updating CATEGORY_LABEL
+// and CATEGORY_ORDER below — TS will flag the missing key.
 
-export const GROUP_LABEL: Record<string, string> = {
-  electron: 'Electron',
-  connect:  'Connection',
-  dom:      'DOM (CDP)',
-  renderer: 'Renderer (CDP)',
-  debugger: 'Debugger (CDP)',
-  network:  'Network (CDP)',
-  v8:       'Main / V8 Inspector',
+import { TOOL_CATALOG, type ToolCategory } from '../../../../src/tool-catalog.ts';
+
+export type Protocol = 'cdp' | 'v8' | 'either';
+
+export interface ToolEntry {
+  name: string;
+}
+
+export interface ToolGroup {
+  category: ToolCategory;
+  label: string;
+  protocol: Protocol;
+  tools: ToolEntry[];
+}
+
+const CATEGORY_LABEL: Record<ToolCategory, string> = {
+  electron:   'Electron',
+  connection: 'Connection',
+  dom:        'DOM (CDP)',
+  renderer:   'Renderer (CDP)',
+  debugger:   'Debugger (CDP)',
+  network:    'Network (CDP)',
+  v8:         'Main / V8 Inspector',
+  admin:      'Tool Management',
 };
 
-export const GROUP_PROTOCOL: Record<string, 'cdp' | 'v8' | 'either'> = {
-  electron: 'either',
-  connect:  'cdp',
-  dom:      'cdp',
-  renderer: 'cdp',
-  debugger: 'cdp',
-  network:  'cdp',
-  v8:       'v8',
+const CATEGORY_PROTOCOL: Record<ToolCategory, Protocol> = {
+  electron:   'either',
+  connection: 'cdp',
+  dom:        'cdp',
+  renderer:   'cdp',
+  debugger:   'cdp',
+  network:    'cdp',
+  v8:         'v8',
+  admin:      'cdp',
 };
 
-export const GROUP_ORDER = ['electron', 'connect', 'dom', 'renderer', 'debugger', 'network', 'v8'] as const;
+// Categories displayed in the palette — admin/management tools are hidden.
+const CATEGORY_ORDER: readonly ToolCategory[] = [
+  'electron',
+  'connection',
+  'dom',
+  'renderer',
+  'debugger',
+  'network',
+  'v8',
+];
+
+// [LAW:dataflow-not-control-flow] Group catalog entries by category in one
+// pass; the palette renders whatever the catalog provides — no per-tool
+// branching, no hardcoded list to maintain.
+function buildGroups(): ToolGroup[] {
+  const buckets = new Map<ToolCategory, ToolEntry[]>();
+  for (const entry of TOOL_CATALOG) {
+    if (!buckets.has(entry.category)) buckets.set(entry.category, []);
+    buckets.get(entry.category)!.push({ name: entry.name });
+  }
+  return CATEGORY_ORDER
+    .map((category) => ({
+      category,
+      label: CATEGORY_LABEL[category],
+      protocol: CATEGORY_PROTOCOL[category],
+      tools: buckets.get(category) ?? [],
+    }))
+    .filter((g) => g.tools.length > 0);
+}
+
+export const TOOL_GROUPS: readonly ToolGroup[] = buildGroups();
+
+/** Total number of tools the MCP server registers — useful for the
+ *  palette header so the count stays accurate as the catalog grows. */
+export const TOTAL_TOOL_COUNT = TOOL_CATALOG.length;

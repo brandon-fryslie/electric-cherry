@@ -11,4 +11,10 @@ export default defineConfig({
     outDir: 'dist',
     sourcemap: true,
   },
+  server: {
+    // Allow dev server to read ../src/tool-catalog.ts so the showcase can
+    // import the same MCP tool catalog the server registers. Production
+    // builds aren't restricted by this — Vite only enforces fs.allow in dev.
+    fs: { allow: ['..'] },
+  },
 });

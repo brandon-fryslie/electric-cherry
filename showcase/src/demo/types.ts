@@ -76,17 +76,10 @@ export interface CalloutInstance {
   side: 'left' | 'right';
 }
 
-/** A single dataflow particle, alive for ~700ms while it animates between
- *  two anchor selectors inside the demo stage. The layer measures rects
- *  at mount-time and self-removes when the animation completes. */
-export interface FlowPacket {
-  id: number;
-  protocol: 'cdp' | 'v8';
-  /** CSS selector (relative to stage) for the source anchor. */
-  sourceSelector: string;
-  /** CSS selector (relative to stage) for the target anchor. */
-  targetSelector: string;
-}
+// ToolDetails moved to ./data/tool-details.ts; it's derived from the
+// canonical MCP tool catalog at src/tool-catalog.ts so the inspector and
+// the live MCP server can never drift.
+export type { ToolDetails } from './data/tool-details.ts';
 
 export type ConsoleLineKind = 'log' | 'error' | 'meta' | 'eval';
 
