@@ -3,9 +3,9 @@
 ## Setup
 
 ```bash
-npm install
-npm run build
-npm test
+pnpm install
+pnpm build
+pnpm test
 ```
 
 ## Local Run
@@ -17,13 +17,13 @@ node build/src/index.js
 ## Watch Mode
 
 ```bash
-npm run dev
+pnpm dev
 ```
 
 ## MCP Inspector
 
 ```bash
-npx @modelcontextprotocol/inspector node build/src/index.js
+pnpm dlx @modelcontextprotocol/inspector node build/src/index.js
 ```
 
 ## Structure

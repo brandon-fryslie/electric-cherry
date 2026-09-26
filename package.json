@@ -15,11 +15,11 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
-    "start": "npm run build && node build/src/index.js",
-    "test": "npm run build && node --test build/tests/*.test.js",
+    "start": "pnpm build && node build/src/index.js",
+    "test": "pnpm build && node --test build/tests/*.test.js",
     "test:watch": "node --test --watch build/tests/*.test.js",
     "clean": "rm -rf build",
-    "prepublishOnly": "npm run build && npm test"
+    "prepublishOnly": "pnpm build && pnpm test"
   },
   "keywords": [
     "mcp",
@@ -44,14 +44,17 @@
     "@modelcontextprotocol/sdk": "^1.27.1",
     "puppeteer": "^24.37.5"
   },
-  "overrides": {
-    "ajv": "8.18.0"
-  },
   "devDependencies": {
     "@types/node": "^22.0.0",
     "typescript": "^5.9.0"
   },
+  "packageManager": "pnpm@10.28.2",
   "engines": {
     "node": ">=20.0.0"
+  },
+  "pnpm": {
+    "overrides": {
+      "ajv": "8.18.0"
+    }
   }
 }

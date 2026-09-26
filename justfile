@@ -4,16 +4,16 @@ entry := justfile_directory() / "build" / "src" / "index.js"
 
 # Install dependencies and build
 setup:
-    npm install
-    npm run build
+    pnpm install
+    pnpm build
 
 # Build the MCP server
 build:
-    npm run build
+    pnpm build
 
 # Run tests
 test:
-    npm test
+    pnpm test
 
 # Install as a Claude Code MCP server into a project directory
 install-claude dir:

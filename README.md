@@ -24,8 +24,8 @@ Electron debugging MCP server for both processes:
 ## Install
 
 ```bash
-npm install
-npm run build
+pnpm install
+pnpm build
 ```
 
 ## Run
@@ -50,9 +50,9 @@ node build/src/index.js
 ## Development
 
 ```bash
-npm run dev
-npm run build
-npm test
+pnpm dev
+pnpm build
+pnpm test
 ```
 
 ## Tool Groups (30 total)

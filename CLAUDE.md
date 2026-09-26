@@ -10,9 +10,9 @@ Electric Cherry is a TypeScript MCP server for Electron debugging:
 ## Commands
 
 ```bash
-npm run build
-npm test
-npm run dev
+pnpm build
+pnpm test
+pnpm dev
 node build/src/index.js
 ```
 
